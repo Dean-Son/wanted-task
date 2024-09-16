@@ -1,7 +1,8 @@
 import { DateHelper } from '@common/helpers/date.helper';
 import { TbComment } from '@entities/comment.entity';
 import { Injectable } from '@nestjs/common';
-import { ResponseGetCommentsDto } from './dtos/get-comments.dto';
+import { commentsPageType } from './comments.type';
+import { ResponseCommentsPageDto, ResponseGetCommentsDto } from './dtos/get-comments.dto';
 
 @Injectable()
 export class CommentsParser {
@@ -18,10 +19,13 @@ export class CommentsParser {
     };
   }
 
-  makeBoardList(comments: TbComment[]): ResponseGetCommentsDto[] {
-    return comments.map((comment) => {
-      const convertComment = this.makeBoard(comment);
-      return convertComment;
-    });
+  makeBoardList(comments: commentsPageType): ResponseCommentsPageDto {
+    return {
+      totalCount: comments.totalCount,
+      commentList: comments.commentList.map((comment) => {
+        const convertComment = this.makeBoard(comment);
+        return convertComment;
+      }),
+    };
   }
 }

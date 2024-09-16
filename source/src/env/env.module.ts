@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { validationEnv } from 'src/env/validation.env';
-console.log(`${__dirname}/.${process.env.NODE_ENV}.env`);
+
 @Module({
   controllers: [],
   providers: [],

@@ -6,7 +6,7 @@ import { Body, Controller, Get, Param, Post, Query, UseFilters } from '@nestjs/c
 import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotImplementedResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { CommentsService } from './comments.service';
-import { RequestGetCommentsDto, ResponseGetCommentsDto } from './dtos/get-comments.dto';
+import { RequestGetCommentsDto, ResponseCommentsPageDto } from './dtos/get-comments.dto';
 import { RequestSetCommentsDto, ResponseSetCommentsDto } from './dtos/set-comments.dto';
 
 @ApiTags('boards')
@@ -26,11 +26,11 @@ export class CommentsController {
   })
   @Get('/:boardSeq/comments')
   @ApiParam({ name: 'boardSeq', required: true })
-  @ResponseDtoType(ResponseGetCommentsDto)
+  @ResponseDtoType(ResponseCommentsPageDto)
   async getCollectionList(
     @Param('boardSeq') boardSeq: number,
     @Query() requestDto: RequestGetCommentsDto,
-  ): Promise<DtoResponse<ResponseGetCommentsDto[]>> {
+  ): Promise<DtoResponse<ResponseCommentsPageDto>> {
     const result = await this.commentsService.getComments(boardSeq, requestDto);
     return { code: ErrDesc.OK__SUCCESS, data: result };
   }

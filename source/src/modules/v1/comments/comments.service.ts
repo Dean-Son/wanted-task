@@ -2,17 +2,22 @@ import { ErrDesc } from '@common/constants/error.constants';
 import { TransactionSupport } from '@common/helpers/orm.helper';
 import { TbBoard } from '@entities/board.entity';
 import { TbComment } from '@entities/comment.entity';
+import { InjectQueue } from '@nestjs/bull';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BoardRepository } from '@repositories/board.repository';
 import { CommentRepository } from '@repositories/comment.repository';
+import { Queue } from 'bull';
 import { QueryRunner } from 'typeorm';
 import { CommentsParser } from './comments.parser';
-import { RequestGetCommentsDto, ResponseGetCommentsDto } from './dtos/get-comments.dto';
+import { commentsPageType } from './comments.type';
+import { RequestGetCommentsDto, ResponseCommentsPageDto } from './dtos/get-comments.dto';
 import { RequestSetCommentsDto, ResponseSetCommentsDto } from './dtos/set-comments.dto';
 
 @Injectable()
 export class CommentsService {
   constructor(
+    @InjectQueue('keyword-noti')
+    private keywordNotiQ: Queue,
     private readonly commentRepository: CommentRepository,
     private readonly boardRepository: BoardRepository,
     private readonly transaction: TransactionSupport,
@@ -25,9 +30,11 @@ export class CommentsService {
    * @author dean
    * @createdate 2024-09-15
    */
-  async getComments(boardSeq: number, requestDto: RequestGetCommentsDto): Promise<ResponseGetCommentsDto[]> {
-    const comments = await this.commentRepository.getListWithBoard(boardSeq);
-    console.log(requestDto);
+  async getComments(boardSeq: number, requestDto: RequestGetCommentsDto): Promise<ResponseCommentsPageDto> {
+    const { take, page } = requestDto;
+    const skip = (page - 1) * take;
+    const comments: commentsPageType = await this.commentRepository.getListWithBoard(boardSeq, take, skip);
+
     return this.commentParser.makeBoardList(comments);
   }
 
@@ -38,7 +45,6 @@ export class CommentsService {
    * @createdate 2024-09-15
    */
   async setComment(boardSeq: number, requestDto: RequestSetCommentsDto): Promise<ResponseSetCommentsDto> {
-    console.log(requestDto);
     const { writer, content, parentCommentSeq } = requestDto;
     const board = await this.boardRepository.getOne(boardSeq);
 
@@ -58,6 +64,11 @@ export class CommentsService {
       comment = dbComment;
     });
 
+    await this.keywordNotiQ.add(
+      'comment',
+      JSON.stringify({ idx: comment.commentSeq, content: content }),
+      { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
+    );
     return this.commentParser.makeBoard(comment);
   }
 

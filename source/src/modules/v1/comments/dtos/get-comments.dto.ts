@@ -1,6 +1,23 @@
+import { PageOptionsDto } from '@common/dtos/page-options.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class RequestGetCommentsDto {}
+export class RequestGetCommentsDto extends PageOptionsDto {}
+
+export class ResponseCommentsPageDto {
+  @ApiProperty({
+    name: 'totalCount',
+    description: '총수',
+    example: '',
+  })
+  totalCount: number;
+
+  @ApiProperty({
+    name: 'boardList',
+    description: '댓글 리스트',
+    example: '',
+  })
+  commentList: ResponseGetCommentsDto[];
+}
 
 export class ResponseGetCommentsDto {
   @ApiProperty({

@@ -15,8 +15,8 @@ export class BoardRepository extends Repository<TbBoard> {
     if (searchTitle) {
       queryBuilder.andWhere('title LIKE :searchTitle', { searchTitle: `%${searchTitle}%` });
     }
-    console.log(queryBuilder.skip(skip).take(take).getSql());
-    const totalCount = await queryBuilder.skip(skip).take(take).getCount();
+
+    const totalCount = await queryBuilder.getCount();
     const boardList = await queryBuilder.skip(skip).take(take).getMany();
     return {
       totalCount,
@@ -25,7 +25,7 @@ export class BoardRepository extends Repository<TbBoard> {
   }
 
   async getOne(boardSeq: number): Promise<TbBoard> {
-    return this.findOne({
+    return await this.findOne({
       where: { isDelete: 0, boardSeq: boardSeq },
     });
   }
@@ -54,7 +54,7 @@ export class BoardRepository extends Repository<TbBoard> {
     updateData: Omit<TbBoard, 'isDelete' | 'createDt' | 'updateDt' | 'passwd'>,
     queryRunner: QueryRunner = this.queryRunner,
   ): Promise<void> {
-    queryRunner.manager.update(TbBoard, { boardSeq: updateData.boardSeq }, { title: updateData.title, content: updateData.content });
+    await queryRunner.manager.update(TbBoard, { boardSeq: updateData.boardSeq }, { title: updateData.title, content: updateData.content });
   }
 
   /**
@@ -64,6 +64,6 @@ export class BoardRepository extends Repository<TbBoard> {
    * @createdate 2024-09-15
    */
   async deleteBoard(boardSeq: number, queryRunner: QueryRunner = this.queryRunner): Promise<void> {
-    queryRunner.manager.update(TbBoard, { boardSeq: boardSeq }, { isDelete: 1 });
+    await queryRunner.manager.update(TbBoard, { boardSeq: boardSeq }, { isDelete: 1 });
   }
 }

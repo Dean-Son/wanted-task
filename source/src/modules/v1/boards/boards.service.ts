@@ -1,9 +1,11 @@
 import { ErrDesc } from '@common/constants/error.constants';
 import { TransactionSupport } from '@common/helpers/orm.helper';
 import { TbBoard } from '@entities/board.entity';
+import { InjectQueue } from '@nestjs/bull';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BoardRepository } from '@repositories/board.repository';
 import * as bcrypt from 'bcrypt';
+import { Queue } from 'bull';
 import { QueryRunner } from 'typeorm';
 import { BoardParser } from './boards.parser';
 import { RequestDeleteBoardsDto, ResponseDeleteBoardsDto } from './dtos/delete-boards.dto';
@@ -14,6 +16,8 @@ import { RequestSetBoardsDto } from './dtos/set-boards.dto';
 @Injectable()
 export class BoardsService {
   constructor(
+    @InjectQueue('keyword-noti')
+    private keywordNotiQ: Queue,
     private readonly boardRepository: BoardRepository,
     private readonly transaction: TransactionSupport,
     private readonly boardParser: BoardParser,
@@ -59,6 +63,12 @@ export class BoardsService {
 
       board = dbBoard;
     });
+
+    await this.keywordNotiQ.add(
+      'board',
+      JSON.stringify({ idx: board.boardSeq, content: content }),
+      { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
+    );
 
     return this.boardParser.makeBoard(board);
   }
@@ -128,7 +138,7 @@ export class BoardsService {
 
     // 비밀번호가 다르면 에러
     const validatePassword = await bcrypt.compareSync(password, board.passwd);
-    console.log(validatePassword);
+
     if (!validatePassword) {
       throw new BadRequestException(ErrDesc.NOT_BOARD_PASSWORD);
     }
