@@ -2,7 +2,7 @@ import { ErrDesc } from '@common/constants/error.constants';
 import { TransactionSupport } from '@common/helpers/orm.helper';
 import { TbBoard } from '@entities/board.entity';
 import { InjectQueue } from '@nestjs/bull';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { BoardRepository } from '@repositories/board.repository';
 import * as bcrypt from 'bcrypt';
 import { Queue } from 'bull';
@@ -18,6 +18,7 @@ export class BoardsService {
   constructor(
     @InjectQueue('keyword-noti')
     private keywordNotiQ: Queue,
+    @Inject(Logger) private readonly logger: LoggerService,
     private readonly boardRepository: BoardRepository,
     private readonly transaction: TransactionSupport,
     private readonly boardParser: BoardParser,
@@ -64,11 +65,15 @@ export class BoardsService {
       board = dbBoard;
     });
 
-    await this.keywordNotiQ.add(
-      'board',
-      JSON.stringify({ idx: board.boardSeq, content: content }),
-      { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
-    );
+    try {
+      await this.keywordNotiQ.add(
+        'board',
+        JSON.stringify({ idx: board.boardSeq, content: content }),
+        { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
 
     return this.boardParser.makeBoard(board);
   }
