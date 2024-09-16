@@ -2,7 +2,7 @@ version: "3.8"
 services:
   mysql:
     image: mysql:8.0
-    platform: linux/amd64
+    platform: linux/amd64 # 맥북 환경에서 필요한 옵션입니다. pc 환경에서는 제거하시면됩니다.
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=root
@@ -20,7 +20,7 @@ services:
     user: "1001"
   redis:
     image: redis:6.2
-    platform: linux/amd64
+    platform: linux/amd64 # 맥북 환경에서 필요한 옵션입니다. pc 환경에서는 제거하시면됩니다.
     command: redis-server --port 6379
     labels:
       - "name=redis"
