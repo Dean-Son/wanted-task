@@ -36,7 +36,7 @@ CREATE TABLE `tbBoard` (
   PRIMARY KEY (`board_seq`),
   KEY `idx_title` (`title`),
   KEY `idx_writer` (`writer`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -54,7 +54,23 @@ CREATE TABLE `tbComment` (
   `writer` varchar(50) DEFAULT '' COMMENT '작성자',
   `create_dt` datetime(6) DEFAULT CURRENT_TIMESTAMP(6) COMMENT '작성일',
   PRIMARY KEY (`comment_seq`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `tbKeyword`
+--
+
+DROP TABLE IF EXISTS `tbKeyword`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbKeyword` (
+  `keyword_seq` int NOT NULL AUTO_INCREMENT,
+  `writer` varchar(50) DEFAULT NULL COMMENT '작성자',
+  `keyword` varchar(50) DEFAULT NULL COMMENT '키워드',
+  `create_dt` datetime(6) DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
+  PRIMARY KEY (`keyword_seq`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='키워드 관리 테이블';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -66,4 +82,4 @@ CREATE TABLE `tbComment` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-15 17:38:13
+-- Dump completed on 2024-09-16 18:28:12
