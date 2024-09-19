@@ -4,6 +4,7 @@ import { TbBoard } from '@entities/board.entity';
 import { TbComment } from '@entities/comment.entity';
 import { InjectQueue } from '@nestjs/bull';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BoardRepository } from '@repositories/board.repository';
 import { CommentRepository } from '@repositories/comment.repository';
 import { Queue } from 'bull';
@@ -16,6 +17,7 @@ import { RequestSetCommentsDto, ResponseSetCommentsDto } from './dtos/set-commen
 @Injectable()
 export class CommentsService {
   constructor(
+    private eventEmitter: EventEmitter2,
     @InjectQueue('keyword-noti')
     private keywordNotiQ: Queue,
     private readonly commentRepository: CommentRepository,
@@ -64,11 +66,13 @@ export class CommentsService {
       comment = dbComment;
     });
 
-    await this.keywordNotiQ.add(
-      'comment',
-      JSON.stringify({ idx: comment.commentSeq, content: content }),
-      { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
-    );
+    // await this.keywordNotiQ.add(
+    //   'comment',
+    //   JSON.stringify({ idx: comment.commentSeq, content: content }),
+    //   { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
+    // );
+    //redis Q 대신 eventEmitter 으로 비동기 처리
+    this.eventEmitter.emit('commentKeywordPush', { idx: comment.commentSeq, content: content });
     return this.commentParser.makeBoard(comment);
   }
 

@@ -5,6 +5,7 @@ import { BullModule } from '@nestjs/bull';
 import { Logger, Module } from '@nestjs/common';
 import { KeywordRepository } from '@repositories/keyword.repository';
 import { KeywordsConsumer } from './keywords.consumer';
+import { KeywordLintener } from './keywords.listener';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { KeywordsConsumer } from './keywords.consumer';
       name: 'keyword-noti',
     }),
   ],
-  providers: [TransactionSupport, DateHelper, KeywordsConsumer, Logger],
+  providers: [TransactionSupport, DateHelper, KeywordsConsumer, KeywordLintener, Logger],
   controllers: [],
 })
 export class keywordsModule {}
