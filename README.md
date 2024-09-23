@@ -26,13 +26,15 @@ $) docker-compose up
 개발 로컬 환경으로 실행하시면 됩니다.
 
 ```
+$)cd source
+$)npm install
 $)npm run start:dev:local
 ```
 
 # 3. 스웨거 접속
 
-/api/v1/api-docs 으로 접속하시면됩니다.
+/api/api-docs 으로 접속하시면됩니다.
 
 ```
-[스웨거 접속](http://localhost:3000/api/v1/api-docs)
+[스웨거 접속](http://localhost:3000/api/api-docs)
 ```
