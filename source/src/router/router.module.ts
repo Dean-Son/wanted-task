@@ -1,6 +1,8 @@
+import { BoardsModule } from '@modules/v1/boards/boards.module';
+import { CommentsModule } from '@modules/v1/comments/comments.module';
+import { keywordsModule } from '@modules/v1/keywords/keywords.module';
 import { DynamicModule, Module } from '@nestjs/common';
 import { RouterModule as NestJsRouterModule } from '@nestjs/core';
-import { RoutesV1Module } from './routes/routes-v1.module';
 
 @Module({})
 export class RouterModule {
@@ -11,11 +13,25 @@ export class RouterModule {
       providers: [],
       exports: [],
       imports: [
-        RoutesV1Module,
+        BoardsModule,
+        CommentsModule,
+        keywordsModule,
         NestJsRouterModule.register([
           {
             path: '/v1',
-            module: RoutesV1Module,
+            module: BoardsModule,
+          },
+        ]),
+        NestJsRouterModule.register([
+          {
+            path: '/v1',
+            module: CommentsModule,
+          },
+        ]),
+        NestJsRouterModule.register([
+          {
+            path: '/v1',
+            module: keywordsModule,
           },
         ]),
       ],
